@@ -2,7 +2,8 @@
 # LVCNet: Efficient Condition-Dependent Modeling Network for Waveform Generation
 
 Using LVCNet to design the generator of Parallel WaveGAN and the *same strategy* to train it, 
-the inference speed of the new vocoder is **more than 5x faster** than the original vocoder *without any degration in audio quality*.  
+the inference speed of the new vocoder is **more than 5x faster** than the original vocoder 
+*without any degradation in audio quality*.  
 
 
 ## Training and Test 
