@@ -43,6 +43,12 @@ Use the tensorboard to view the experimental training process:
 tensorboard --logdir exps
 ```
 
+### Traning Loss
+![image](samples/train-loss.png)
+
+### Evaluate Loss
+![image](samples/evaluate-loss.png)
+
 
 ### Aduio Sample 
 
