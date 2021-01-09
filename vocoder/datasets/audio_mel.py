@@ -3,14 +3,15 @@ import numpy as np
 from scipy.io import wavfile
 
 import torch
-import torchaudio 
 from torch.utils.data import DataLoader, Dataset  
+
+from vocoder.audio import load_wav_to_torch 
 from .utils import read_metadata 
 
 class PWGAudioMelNoiseDataset(Dataset):
     ''' the Pytorch Dataset for loading audio(.wav) and mel(.npy) '''
 
-    def __init__(self, metadata_file, batch_mel_length, hop_length, cut=True):
+    def __init__(self, metadata_file, batch_mel_length, sample_rate, hop_length, cut=True):
         '''Initialize   
         Args:
             metadata_file (str): the file including paths of audio and mel.  
@@ -26,6 +27,7 @@ class PWGAudioMelNoiseDataset(Dataset):
         super().__init__() 
         self.batch_mel_length = batch_mel_length 
         self.hop_length = hop_length
+        self.sample_rate = sample_rate 
         self.cut = cut
 
         self.metadata = read_metadata( metadata_file ) 
@@ -49,7 +51,9 @@ class PWGAudioMelNoiseDataset(Dataset):
         '''
         wav_path, mel_path = self.metadata[ idx ] 
         
-        audio = torchaudio.load( wav_path )[0]
+        audio, sr = load_wav_to_torch( wav_path, self.sample_rate )
+        assert sr == self.sample_rate 
+
         mel = np.load( mel_path ) 
 
         if self.cut:

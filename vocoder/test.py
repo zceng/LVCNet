@@ -31,8 +31,10 @@ class Tester:
 
         self.train_results = defaultdict(float) 
 
-    def restore_checkpoint(self):
-        checkpoint = os.readlink( os.path.join( self.exp_dir, 'checkpoint.pt') )
+    def restore_checkpoint(self, checkpoint=None):
+        pt = os.path.join( self.exp_dir, 'checkpoint.pt') 
+        if checkpoint is None and os.path.islink(pt):
+            checkpoint = os.path.join( self.exp_dir, os.readlink(pt) )
         state_dict = torch.load( checkpoint, map_location='cpu')  
         self.step = state_dict['step']
         self.model.load_state_dict( state_dict['model'] ) 
@@ -43,6 +45,7 @@ class Tester:
         dataset_config = {
             'metadata_file': self.hparams.test_metadata_file,
             'hop_length': self.hparams.hop_length,
+            'sample_rate': self.hparams.sample_rate, 
             'batch_mel_length': self.hparams.batch_mel_length,
             'cut': False
         }
@@ -87,6 +90,8 @@ def main():
     parser.add_argument("--exp-dir", type=str, required=True,
                         help="the directory saving expriment data, "
                         "including model checkpoints, log, results. ")
+    parser.add_argument("--checkpoint", default=None, type=str,
+                        help="checkpoint file path to load saving model")
     parser.add_argument("--device", default='cuda', type=str,
                         help="the device for training. (default: cuda:0)")
     args = parser.parse_args() 

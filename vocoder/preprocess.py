@@ -4,28 +4,29 @@ from functools import partial
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 import torch
-import torchaudio
-from torchaudio.transforms import MelSpectrogram
+
+from .audio import TacotronSTFT, load_wav_to_torch 
 
 from vocoder.datasets.utils import save_metadata
 from vocoder.hparams import Hyperparameter 
 
+
+
 def mel_transform(wav_files, mel_dir, mel_config, device, min_wav_length):
-    device = torch.device( device )
-    transfomer = MelSpectrogram( **mel_config ).to( device ) 
+    # device = torch.device( device )
+    # transfomer = MelSpectrogram( **mel_config ).to( device ) 
+    taco_stft = TacotronSTFT( **mel_config )
     files = []
     with torch.no_grad():
         for fn in wav_files:
-            audio, sr = torchaudio.load( fn ) 
-            if sr != mel_config['sample_rate'] or audio.shape[1] < min_wav_length:
+            audio, sr = load_wav_to_torch( fn, mel_config['sampling_rate'] ) 
+            if audio.shape[1] < min_wav_length:
                 print( 'skip {}, sr: {}, length: {}'.format(fn, sr, audio.shape[1]) )
                 continue
-            mel = transfomer( audio.to(device) ) 
-            mel = 20 * torch.log10(torch.clamp(mel, min=1e-5)) - 20
-            mel = torch.clamp((mel + 100) / 100, 0.0, 1.0) 
+            # audio = audio.to( device ) 
+            mel, _ = taco_stft.mel_spectrogram( audio )
             mel_fn = os.path.join( mel_dir, os.path.basename(fn) + '.mel.npy' )
             np.save( mel_fn, mel[0].cpu().numpy().T )
-
             files.append( (fn, mel_fn) )
     return files
 
@@ -49,15 +50,13 @@ def preprocess( data_dir,
     mel_dir = os.path.join( temp_dir, 'mels' ) 
     os.makedirs(mel_dir, exist_ok=True)
     mel_config = {
-        'sample_rate': hparams.sample_rate,
+        'sampling_rate': hparams.sample_rate,
         'win_length': hparams.win_length,
         'hop_length': hparams.hop_length,
-        'n_fft': hparams.n_fft,
-        'f_min': hparams.mel_f_min,
-        'f_max': hparams.mel_f_max,
-        'n_mels': hparams.n_mels,
-        'power': 1.0,
-        'normalized': True,
+        'filter_length': hparams.n_fft,
+        'mel_fmin': hparams.mel_fmin,
+        'mel_fmax': hparams.mel_fmax,
+        'n_mel_channels': hparams.n_mels,
     }
     min_wav_length = hparams.batch_mel_length * hparams.hop_length
 

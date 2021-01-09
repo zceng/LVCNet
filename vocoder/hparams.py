@@ -17,8 +17,8 @@ class Hyperparameter:
         self.win_length  = 1024
         self.n_fft       = 1024
         self.n_mels      = 80
-        self.mel_f_max   = 8000
-        self.mel_f_min   = 70
+        self.mel_fmax   = 8000
+        self.mel_fmin   = 70
 
         # Moel 
         self.model_name = 'ParallelWaveGAN'

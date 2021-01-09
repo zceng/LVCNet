@@ -36,13 +36,14 @@ class Trainer:
         self.restore_checkpoint(args.restart, args.checkpoint)
 
         self.train_results = defaultdict(float) 
+        self.num_train_reuslts = 0
 
     def restore_checkpoint(self, restart=False, checkpoint=None):
         if not restart:
             try:
                 pt = os.path.join( self.exp_dir, 'checkpoint.pt') 
                 if checkpoint is None and os.path.islink(pt):
-                    checkpoint = os.readlink(pt)
+                    checkpoint = os.path.join( self.exp_dir, os.readlink(pt) )
                 if not os.path.isfile( checkpoint ):
                     print('start new training.')
                     return
@@ -67,7 +68,7 @@ class Trainer:
         torch.save( state_dict, save_path )
         if os.path.islink(link_path):
             os.unlink(link_path)
-        os.symlink(save_path, link_path)
+        os.symlink(f'checkpoint-{self.step}.pt', link_path)
         self.log.info( f'Save chechpoint as {save_path}' )
 
     def init_dataloader(self):
@@ -75,11 +76,13 @@ class Trainer:
         train_dataset_config = {
             'metadata_file': self.hparams.train_metadata_file,
             'hop_length': self.hparams.hop_length,
+            'sample_rate': self.hparams.sample_rate,
             'batch_mel_length': self.hparams.batch_mel_length
         }
         eval_dataset_config = {
             'metadata_file': self.hparams.eval_metadata_file,
             'hop_length': self.hparams.hop_length,
+            'sample_rate': self.hparams.sample_rate,
             'batch_mel_length': self.hparams.batch_mel_length
         }
         self.dataloader = {
@@ -141,13 +144,15 @@ class Trainer:
     def _check_log(self, train_result):
         for k in train_result:
             self.train_results[k] += train_result[k]
+        self.num_train_reuslts += 1
 
         if self.step % self.hparams.log_interval_steps == 0:
             for k in self.train_results:
-                v = self.train_results[k] / self.hparams.log_interval_steps 
+                v = self.train_results[k] / self.num_train_reuslts
                 self.log.add_scalar( f'train/{k}', v, self.step) 
 
             self.train_results = defaultdict(float)
+            self.num_train_reuslts = 0
         
         if self.step % self.hparams.save_interval_steps == 0:
             self.save_checkpoint()
