@@ -97,7 +97,7 @@ dataset_classname: "PWGAudioMelNoiseDataset"
 dataset_num_workers: 5
 batch_mel_length: 48
 train_batch_size: 8
-max_train_steps: 400000 
+max_train_steps: 800000 
 log_interval_steps: 100
 
 
