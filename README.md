@@ -1,11 +1,11 @@
 
-# LVCNet: Efficient Condition-Dependent Modeling Network for Waveform Generation
+# [LVCNet: Efficient Condition-Dependent Modeling Network for Waveform Generation](https://arxiv.org/abs/2102.10815)
 
 Using LVCNet to design the generator of Parallel WaveGAN and the *same strategy* to train it, 
 the inference speed of the new vocoder is **more than 5x faster** than the original vocoder 
 *without any degradation in audio quality*.  
 
-Our current works has been submitted to ICASSP2021, and our previous works were described in [Melglow](https://arxiv.org/abs/2012.01684). 
+Our current works has been accepted by ICASSP2021, and our previous works were described in [Melglow](https://arxiv.org/abs/2012.01684). 
 
 ## Training and Test 
 
@@ -61,6 +61,7 @@ Audio Samples are saved in `samples/`, where
 
 
 ## Reference 
-> MelGlow: Efficient Waveform Generative Network Based on Location-Variable Convolution. https://arxiv.org/abs/2012.01684  
+> LVCNet: Efficient Condition-Dependent Modeling Network for Waveform Generation, https://arxiv.org/abs/2102.10815  
+> MelGlow: Efficient Waveform Generative Network Based on Location-Variable Convolution, https://arxiv.org/abs/2012.01684   
 > https://github.com/kan-bayashi/ParallelWaveGAN  
 > https://github.com/lmnt-com/diffwave  
